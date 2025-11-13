@@ -58,7 +58,8 @@ example_call(1,2,3,4, "I'm on stack!", "Me too!");
 ```
 
 I decided that I don't want nonsense in my hypervisor. So I did the easiest one. Always a fixed number of registers, for every function.
-To pass more than one argument, we can simply construct a struct and pass its pointer through registers.
+To pass more than 3 arguments, we can simply construct a struct and pass its pointer through registers.
+We can also use the famous cbSize WinAPI uses to specify the version of structure that is being passed, if it ever gets changed, to support compatibility with older callers.
 
 ## Did you get it?
 We also need to make sure that hypervisor catches our call. For that, I picked the register RCX for its special behavior on CPUID instruction.
