@@ -2,8 +2,8 @@ theme: jekyll-theme-chirpy
 
 lang: en
 
-timezone:
-title: "Staarblitz's rants" # the main title
+timezone: "Asia/Istanbul"
+title: "Staarblitz" # the main title
 
 tagline: "Windows developer using Linux."
 
