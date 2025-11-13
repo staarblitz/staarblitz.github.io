@@ -34,13 +34,21 @@ pub struct HypervisorCall {
 ```
 
 The fields are very self explanatory. But let's go over what I aimed.
+
 `func` - Most self explanatory one. The unique identifier of the service that guest software asks hypervisor to do.
+
 `is_fast` - A fastcall. Currently reserved.
+
 `ignore_result` - The hypervisor returns nothing.
+
 `buffer_by_user` - Hypervisor expects the buffer to be pre-allocated by the caller. If not, the function fails.
+
 `yield_execution` - Hypervisor yields execution to next thread after its done executing the service function.
+
 `is_async` - Hypervisor puts the request into a queue to execute later.
+
 `async_cookie` - The cookie of the call, which will be used to notify caller it has been done.
+
 
 While constructing this ABI, I decided to NOT use stack. Since the memory is slow, and a vmexit makes it even slower.
 We need to pick a register to store the hypercall result and the call details. I picked RSI for that purpose. And picked R8, R9, and R10 for 3 args.
