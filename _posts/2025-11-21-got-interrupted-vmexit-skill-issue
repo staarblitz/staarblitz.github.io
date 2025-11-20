@@ -36,6 +36,10 @@ What? You didn't think I was going to setup an I/O Csq for a hypervisor, right?
 
 Right?
 
+# Worker threads in kernel mode
+First, as it looks like in the polling thread code, we simply neeed a queue (which Rust provides, saving us from `LINKED_LIST`s), a worker thread in PASSIVE_LEVEL.
+But which primitive shall we use?
+
 # Sync primitives in NT
 Basically, in NT architecture, we have waaaay more sync primitives than any of us could ever wish. Ready for your any weird IRQL levels (except ours. Lol imagine acquiring a lock in a VMEXIT) and speed requests.
 MSDN provides a document we can read to learn about them in detail. [https://learn.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613998(v=vs.85)?redirectedfrom=MSDN](Here).
@@ -53,8 +57,12 @@ The section "asking the right questions" is exactly what you should do when pick
 *Is the lock global, or is it highly instantiated/replicated throughout memory?* - Global. More than you could ever wish for.
 
 Since we cannot do wait-based locking on VMEXITs and other high IRQL situations, we must go with the standard spin-based locks. So `KeAcquireSpinLock` and `KeReleaseSpinLock` will do very fine for our purpose.
-Note that, 
+Note that, this is for hardcore C devs and Rust already provides `spin` crate that does the hard work for us.
 
-# Worker threads in kernel mode
-First, as it looks like in the polling thread code, we simply neeed a queue (which Rust provides, saving us from `LINKED_LIST`s), a worker thread in PASSIVE_LEVEL.
-But which primitive shall we use?
+# Anything else?
+Using `KeDelayExecutionThread` to await before every iteration of while loop will be a good idea.
+
+An example implementation will be on [hxposed](https://github.com/staarblitz/hxposed) soon!
+
+
+Yours truly.
