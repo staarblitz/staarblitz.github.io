@@ -7,23 +7,23 @@ tags: [virtualization, kernel, x86]
 ---
 
 # What is IRQL, even?
-IRQL stands for Interrupt Request Level, is an NT thingy. It's stored on CR8 and those fancy functions' (KeRaiseIrql, KeLowerIrql) purpose is to write to it.
+IRQL stands for Interrupt Request Level, is an NT thingy. It's stored on CR8 and those fancy functions' (`KeRaiseIrql`, `KeLowerIrql`) purpose is to write to it.
 
-An IRQL essentailly defines how "important" the currently running code is. For example, after IRQLs DISPATCH_LEVEL and above, Windows Scheduler cannot interrupt the running core.
+An IRQL essentailly defines how "important" the currently running code is. For example, after IRQLs `DISPATCH_LEVEL` and above, Windows Scheduler cannot interrupt the running core.
 
 Some most commons are (ordered by prioirity):
 1. `PASSIVE_LEVEL` - lowest level of IRQL. Every user-moded thread runs in this IRQL.
 2. `DISPATCH_LEVEL` - Some kind of "mid" level. The task is not that important but important enough to know that it should not be scheduled in half.
 3. `HIGH_LEVEL` - highest level of IRQL (known to Windows). Very, very important tasks (no examples coming to my mind)
 
-After DISPATCH_LEVEL and above, paging is disabled since page fault recovery requires a low IRQL. This is why touching paged memory in high IRQLs often end in tears.
+After `DISPATCH_LEVEL` and above, paging is disabled since page fault recovery requires a low IRQL. This is why touching paged memory in high IRQLs often end in tears.
 
 # So what do we do about it?
 In a VMEXIT, as Intel manual states, every kind of interrupt is disabled. LAPIC, disabled, device interrupts, gone, clock interrupts, gone.
 Even IPIs are gone. I think you know what I mean now.
 
 This level of IRQL restricts **almost** every useful NT function. From `PspTerminateProcess` to `ZwOpenProcess`, as I stated in [this issue](https://github.com/staarblitz/hxposed/issues/2). 
-Unfortunately, the world isn’t all flowers and rainbows, and you can’t just call KeLowerIrql whenever you feel like it. To use those beautiful functions. Even if you *somehow* managed to do it, remember that we are in a VMEXIT.
+Unfortunately, the world isn’t all flowers and rainbows, and you can’t just call `KeLowerIrql` whenever you feel like it. Even if you *somehow* managed to do it, remember that we are in a VMEXIT.
 
 So what is our best bet? Pending them.
 
@@ -37,11 +37,11 @@ What? You didn't think I was going to setup an I/O Csq for a hypervisor, right?
 Right?
 
 # Worker threads in kernel mode
-First, as it looks like in the polling thread code, we simply neeed a queue (which Rust provides, saving us from `LINKED_LIST`s), a worker thread in PASSIVE_LEVEL.
+First, as it looks like in the polling thread code, we simply neeed a queue (which Rust provides, saving us from `LINKED_LIST`s), a worker thread in `PASSIVE_LEVEL`.
 But which primitive shall we use?
 
 # Sync primitives in NT
-Basically, in NT architecture, we have waaaay more sync primitives than any of us could ever wish. Ready for your any weird IRQL levels (except ours. Lol imagine acquiring a lock in a VMEXIT) and speed requests.
+Basically, in NT architecture, we have waaaay more sync primitives than any of us could ever wish. Ready for your any weird IRQL levels and speed requests.
 MSDN provides a document we can read to learn about them in detail. [Here](https://learn.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613998(v=vs.85)?redirectedfrom=MSDN).
 
 But if you hate Microsoft documentation (I do), the OSR also provides a very, very good explanation of them at [here](https://www.osr.com/nt-insider/2015-issue3/the-state-of-synchronization/).
