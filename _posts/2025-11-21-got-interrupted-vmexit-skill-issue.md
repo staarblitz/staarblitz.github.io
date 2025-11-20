@@ -22,7 +22,7 @@ After DISPATCH_LEVEL and above, paging is disabled since page fault recovery req
 In a VMEXIT, as Intel manual states, every kind of interrupt is disabled. LAPIC, disabled, device interrupts, gone, clock interrupts, gone.
 Even IPIs are gone. I think you know what I mean now.
 
-This level of IRQL restricts **almost** every useful NT function. From `PspTerminateProcess` to `ZwOpenProcess`, as I stated in [this issue](github.com/staarblitz/hxposed/issues/2). 
+This level of IRQL restricts **almost** every useful NT function. From `PspTerminateProcess` to `ZwOpenProcess`, as I stated in [this issue](https://github.com/staarblitz/hxposed/issues/2). 
 Unfortunately, the world isn’t all flowers and rainbows, and you can’t just call KeLowerIrql whenever you feel like it. To use those beautiful functions. Even if you *somehow* managed to do it, remember that we are in a VMEXIT.
 
 So what is our best bet? Pending them.
@@ -42,7 +42,7 @@ But which primitive shall we use?
 
 # Sync primitives in NT
 Basically, in NT architecture, we have waaaay more sync primitives than any of us could ever wish. Ready for your any weird IRQL levels (except ours. Lol imagine acquiring a lock in a VMEXIT) and speed requests.
-MSDN provides a document we can read to learn about them in detail. [https://learn.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613998(v=vs.85)?redirectedfrom=MSDN](Here).
+MSDN provides a document we can read to learn about them in detail. [Here](https://learn.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613998(v=vs.85)?redirectedfrom=MSDN).
 
 But if you hate Microsoft documentation (I do), the OSR also provides a very, very good explanation of them at [here](https://www.osr.com/nt-insider/2015-issue3/the-state-of-synchronization/).
 
