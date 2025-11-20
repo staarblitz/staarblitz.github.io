@@ -1,6 +1,6 @@
 ---
 title: Got interrupted? Skill issue. How to deal with 0xFF IRQL on VMEXITs.
-description: How to cope with unability to call any NT function in a VMEXIT.
+description: How to cope with inability to call any NT function in a VMEXIT.
 date: 2025-11-21 00:33:00 +0800
 categories: [Virtualization, Windows]
 tags: [virtualization, kernel, x86]
