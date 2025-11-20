@@ -48,13 +48,21 @@ But if you hate Microsoft documentation (I do), the OSR also provides a very, ve
 
 ## Choosing the right type.
 The section "asking the right questions" is exactly what you should do when pickingg a sync primitive in NT. Let's see what our questions are and what are their answers.
+
 *Is it okay to use a wait based lock?* - No. The VMEXIT cannot be waited.
+
 *Do I need to support recursion in my synchronization logic?* No. A core can only be executing in host mode or guest mode. Not both.
+
 *Will the data sometimes be concurrently accessed only for read semantics, with only some uses requiring write semantics, or are all concurrent accesses likely to require modification of the data?* - All concurrent access requires modification of data. Since the worker thread has to remove or mark the pending "command" as done.
+
 *Is heavy contention expected on the lock, or is it likely that only one thread or processor will ever need the lock?* - Depends. Most likely no for our purpose. Our hypervisor does not hypervise the system. It simply provides nice mechanics to extend NT functionality.
+
 *Does the lock require fairness?* - See answer above. (No)
+
 *Are there CPU cache, NUMA latency, or false sharing considerations that will impact performance?* - No.
+
 *Is the lock global, or is it highly instantiated/replicated throughout memory?* - Global. More than you could ever wish for.
+
 
 Since we cannot do wait-based locking on VMEXITs and other high IRQL situations, we must go with the standard spin-based locks. So `KeAcquireSpinLock` and `KeReleaseSpinLock` will do very fine for our purpose.
 Note that, this is for hardcore C devs and Rust already provides `spin` crate that does the hard work for us.
