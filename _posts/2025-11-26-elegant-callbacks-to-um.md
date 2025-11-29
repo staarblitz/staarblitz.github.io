@@ -119,7 +119,7 @@ Very easy. We just have to check for RCX.
 ```c
 LONG LovelyHandler(struct _EXCEPTION_POINTERS* info) {
 	if (info->ExceptionRecord->ExceptionCode != EXCEPTION_ILLEGAL_INSTRUCTION) {
-		return EXCEPTION_CONTINUE_SEARCH;
+		return EXCEPTION_CONTINUE_SEARCH; // it is none of our interest
 	}
 
 	if (info->ContextRecord->Rip == TargetFunction) {
