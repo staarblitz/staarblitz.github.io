@@ -209,7 +209,12 @@ DbgPrint("Status: %x\n", Status);
 And when we run our driver, we get a.... uh?
 ![BSOD](/assets/img/uploads/img5.png)
 
-This is because we are in APC context of the process, and not just in context of thread like we would be when we issue an IOCTL.
+This is because APCs (somehow) are disabled.
+In IDA, we can see clearly how is this thrown. 
+```c
+if (CurrentThread->Tcb.ApcStateIndex || CurrentThread->Tcb.WaitBlock[3].SpareLong)
+	KeBugCheckEx(1u, retaddr, CurrentThread->Tcb.ApcStateIndex, CurrentThread->Tcb.CombinedApcDisable, 0LL);
+```
 
 So what do we do?
 
