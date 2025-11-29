@@ -170,7 +170,7 @@ RtlRestoreContext(info->ContextRecord, NULL); // restore the context, apply the 
 
 Voila! Perfect! Whatever you call it! Now we need to message to our user-mode software.
 
-### The Real Deal
+## The Real Deal
 We first need to acquire `PEPROCESS` for our user-mode software. For now, we can simply use PsGetProcessById. Of course, since this is a demo only, that will work.
 Then, we need to allocate bytes for our input buffer
 Then, we need to get into context of the process that made the call.
