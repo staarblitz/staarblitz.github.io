@@ -21,7 +21,7 @@ social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: Staarblitz
-  email: vlltx@tuta.io # change to your email address
+  email: None
   links:
     - https://t.me/staarblitz
 
@@ -61,6 +61,8 @@ pageviews:
 #     dark — Use the dark color scheme
 #
 theme_mode: # [light | dark]
+
+avatar: "/assets/img/avatar.jpg"
 
 # The CDN endpoint for media resources.
 # Notice that once it is assigned, the CDN url
