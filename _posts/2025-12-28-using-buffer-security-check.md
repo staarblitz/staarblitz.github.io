@@ -12,7 +12,7 @@ So the problem was simple. HxPosed, being an unsigned driver, has to be loaded. 
 So I made HxLoader. It maps and runs HxPosed by patching Windows's boot. And how I did that?
 
 ### UEFI Bootkits for Windows. A summary.
-*WARNING: In no way do I, the author and coder, condone any tendency to harm a computer, person or entity. This blog and all my work are for educational purposes only. Individuals who misuse this blog and my work for malicious purposes are solely responsible for any harm they cause.*
+*WARNING: In no way do I, the author and coder, condone any tendency to harm a computer, person or entity. This blog and all my work are for educational purposes only. I am not responsible for any damage caused by any misuse of my content or work.*
 
 It's a *de facto* standard how bootkits for Windows work nowadays.
 1. Load Bootmgfw to memory.
