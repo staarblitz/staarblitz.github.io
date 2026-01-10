@@ -5,7 +5,7 @@ lang: en
 timezone: "Asia/Istanbul"
 title: "Staarblitz" # the main title
 
-tagline: "Windows developer using Linux."
+tagline: "Intel hater."
 
 description: >- # used by seo meta and the atom feed
   A place of rants, information and more rants about programming, Windows, kernel mode and bootloaders in general.
