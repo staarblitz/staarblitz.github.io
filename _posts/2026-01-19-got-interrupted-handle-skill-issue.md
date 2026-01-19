@@ -153,4 +153,6 @@ Simple as that.
 
 ### The Real Deal
 
+Now we can use `KeSetEvent` to simply set the event. We won't have to change process contexts now since we have access to the object in system space!
+
 After testing, we see that we easily get a pointer to the object, in a VMEXIT! Yuppy!
