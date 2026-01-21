@@ -3,7 +3,7 @@ title: Got interrupted? Part 2. Tales of two handle tables.
 description: How to give a middle finger to the object manager
 date: 2026-01-19 00:33:00 +0800
 categories: [Virtualization, Windows]
-tags: [virtualization, windows-internals, kernel]
+tags: [virtualization, irql, windows-internals, kernel]
 ---
 
 ## Disappointment
