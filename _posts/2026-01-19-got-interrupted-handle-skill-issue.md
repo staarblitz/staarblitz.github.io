@@ -132,7 +132,7 @@ let object_header = (object_pointer << 4 | 0xffff000000000000) as *mut u64; // d
 let object_body = unsafe{object_header.byte_offset(0x30)} as *mut T;
 ```
 
-### Not all good.
+### References matter
 
 We referenced the object, without actually referencing it. We have the object but we didn't tell Windows that we are using it. We need to modify the `PointerCount` field of the `OBJECT_HEADER` structure. So Windows won't delete it mid-operation.
 
@@ -150,6 +150,79 @@ pub fn decrement_ref_count(object: *mut u64) {
 ```
 
 Simple as that.
+
+## What about creating handles?
+After some more research, I realized that the map itself is in **paged** pool. But somehow, with this level of IRQL. We are able to access it. I'm not sure how its possible. Probably because its not paged out. But in Windows, it doesn't matter. You are not allowed to touch paged memory, whether its present or not, on high IRQLs.
+
+So after realizing I can entirely remove async from HxPosed, I went into a problem, "How I will call `ObOpenObjectByPointer`?". The answer was same. Research.
+
+Opening `ObOpenObjectByPointer`, we see an pretty simple function. And a call to `ObCreateHandle` after some checks.
+
+But `ObCreateHandle` is extremely huge. We can see there is a lot of security checks happening. We dig through to find a few interesting calls:
+1. `ObpIncrementHandleCountEx`
+2. `ObpInsertOrLocateNamedObject`
+
+But none of those do us any good. Until we find a call to `ExpAllocateHandleTableEntrySlow`. This is another function that allocates the actual entry. But it uses paged pool, too. It's not a problem for us since it *somehow* works.
+
+![xrefs](/assets/img/uploads/img14.png)
+
+So we got a function named as `ExCreateHandleEx`. Seems like exactly what we are after!
+
+After looking at its xrefs, we see that `PspAllocateProcess` calls `ExCreateHandleEx`.
+With some renaming, we can see how its called and what are its arguments that are our interest.
+
+![Calling ExCreateHandleEx](/assets/img/uploads/img15.png)
+
+So first parameter is `PHANDLE_TABLE_ENTRY`, and second is the object pointer? Great.
+
+So we can form our prototype.
+
+I quickly fired up a driver that calls this function and we will check the handle it created.
+
+```c
+Irql = KfRaiseIrql(HIGH_LEVEL); // we gotta make sure it works
+Process = IoGetCurrentProcess();
+ObjectTable = *(PVOID*)((PUINT8)Process + 0x300);
+Handle = ExCreateHandle(Process, ObjectHeader);
+```
+
+So we got our handle but... Uh?
+
+![This is not our object](/assets/img/uploads/img16.png)
+
+We can safely say that a DxgkSharedSwapChainObject is not a process object. So what went wrong?
+
+Let's try with the object header instead of object body.
+
+![This is](/assets/img/uploads/img17.png)
+
+Yes. That is what we like to see. But there is one problem. The GrantedAccess is 0. The handle is created with 0 access rights. That means we need to access the `_HANDLE_TABLE_ENTRY` structure and change those bits we've seen earlier.
+
+Bits 0-25 are we need for that. We will just fill it with Fs to get us all access we need. We will use `ExpLookupHandleTableEntry` to get the entry, again.
+
+```c
+Entry = ExpLookupHandleTableEntry(ObjectTable, Handle);
+Entry->s2.GrantedAccessBits = 0x1FFFFFF;
+```
+
+### How many times I have to tell....
+
+Things are going pretty well, so far. Let's try to use the handle with `TerminateProcess` on user-mode and see what happens.
+
+![bugcheck](/assets/img/uploads/img18.png)
+
+So we got a bugcheck telling us reference count for the object is illegal. Let's see how that is the case with dt.
+
+![object header](/assets/img/uploads/img19.png)
+
+That means `ExCreateHandle` does **not** increment reference and object count for us. We have to do it ourselves.
+
+```c
+*(ObjectHeader) += 1;
+*(ObjectHeader + 1) += 1;
+```
+
+This does the job. There we go. Now we can create and get objects from the handles without help of the object manager. That is amazing!
 
 ### The Real Deal
 
