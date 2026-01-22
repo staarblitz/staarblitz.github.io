@@ -105,7 +105,7 @@ A virtual address of `0x7ff80bca0000` actually represents these fields:
 
 So what does CPU do when it needs to read that address? Simple.
 
-If you want a more visual look, check the little tool I made that gives you more info about pages by their values [PageView](https://github.com/staarblitz/PageView).
+If you want a more visual look, check the little tool I made that gives you more info about pages by their values [PageDisplay](https://github.com/staarblitz/PageDisplay).
 
 1. First, CPU reads the `CR3` register. Which contains physical base to PML4 (or PML5 if 5-level paging) table.
 2. To calculate the address from `CR3` register, it masks out the last 12 bits.
