@@ -35,6 +35,10 @@ So I decided to do it in the _real_ way. Modifying the page tables.
 
 Since HxPosed is a hypervisor, it might seem like a nice option to use EPTs or NPTs. But that is not a good idea. EPTs introduce overhead, and they manage physical -> physical translations. Not virtual -> physical translations which is what we would really need to say for example, map a page.
 
+### What about HLAT?
+
+We can use HLAT to manage guest virtual address translations. But I reserved that for another blog post for a more in depth look.
+
 ## Page Tables
 
 Microsoft Windows (generally) uses 4 level paging. Which consist of:
