@@ -37,7 +37,7 @@ Since HxPosed is a hypervisor, it might seem like a nice option to use EPTs or N
 
 ### What about HLAT?
 
-We can use HLAT to manage guest virtual address translations. But I reserved that for another blog post for a more in depth look.
+Point is naturally mapping the addresses for the user-process. This will add overhead and complexity.
 
 ## Page Tables
 
